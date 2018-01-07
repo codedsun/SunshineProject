@@ -15,11 +15,14 @@
  */
 package com.example.android.sunshine.data.network;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import com.example.android.sunshine.AppExecutors;
+import com.example.android.sunshine.data.database.WeatherEntry;
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.Driver;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -52,10 +55,12 @@ public class WeatherNetworkDataSource {
     private final Context mContext;
 
     private final AppExecutors mExecutors;
+    private final MutableLiveData<WeatherEntry[]> mDownloadedWeatherForecast;
 
     private WeatherNetworkDataSource(Context context, AppExecutors executors) {
         mContext = context;
         mExecutors = executors;
+        mDownloadedWeatherForecast = new MutableLiveData<WeatherEntry[]>();
     }
 
     /**
@@ -165,14 +170,17 @@ public class WeatherNetworkDataSource {
                             response.getWeatherForecast()[0].getMin(),
                             response.getWeatherForecast()[0].getMax()));
 
-                    // TODO Finish this method when instructed.
-                    // Will eventually do something with the downloaded data
+                   mDownloadedWeatherForecast.postValue(response.getWeatherForecast());
                 }
             } catch (Exception e) {
                 // Server probably invalid
                 e.printStackTrace();
             }
         });
+    }
+
+    public LiveData<WeatherEntry[]> getCurrentWeatherForecast(){
+        return mDownloadedWeatherForecast;
     }
 
 }
