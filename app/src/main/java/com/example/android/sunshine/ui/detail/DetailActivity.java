@@ -54,7 +54,7 @@ public class DetailActivity extends LifecycleActivity {
 
         mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
         long timestamp = getIntent().getLongExtra(WEATHER_ID_EXTRA, -1);
-        Date date = SunshineDateUtils.getNormalizedUtcDateForToday();
+        Date date = new Date(timestamp);
         detailActivityViewModel.getWeather().observe(this,weatherEntry -> {
            if(weatherEntry!=null) bindWeatherToUI(weatherEntry);
         });

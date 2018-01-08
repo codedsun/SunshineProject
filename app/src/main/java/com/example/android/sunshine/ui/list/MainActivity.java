@@ -15,6 +15,8 @@
  */
 package com.example.android.sunshine.ui.list;
 
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +27,7 @@ import android.widget.ProgressBar;
 
 import com.example.android.sunshine.R;
 import com.example.android.sunshine.ui.detail.DetailActivity;
+import com.example.android.sunshine.utilities.InjectorUtils;
 
 import java.util.Date;
 
@@ -32,19 +35,30 @@ import java.util.Date;
 /**
  * Displays a list of the next 14 days of forecasts
  */
-public class MainActivity extends AppCompatActivity implements
+public class MainActivity extends LifecycleActivity implements
         ForecastAdapter.ForecastAdapterOnItemClickHandler {
 
     private ForecastAdapter mForecastAdapter;
     private RecyclerView mRecyclerView;
     private int mPosition = RecyclerView.NO_POSITION;
     private ProgressBar mLoadingIndicator;
+    private MainActivityViewModel mainActivityViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
+        MainViewModelFactory mainViewModelFactory = InjectorUtils.provideMainActivityViewModelFactory(this.getApplicationContext());
+        mainActivityViewModel= ViewModelProviders.of(this,mainViewModelFactory).get(MainActivityViewModel.class);
+        mainActivityViewModel.getForecast().observe(this, weatherEntries -> {
+            mForecastAdapter.swapForecast(weatherEntries);
+            if(mPosition == RecyclerView.NO_POSITION) mPosition =0;
+            mRecyclerView.scrollToPosition(mPosition);
 
+            if(weatherEntries !=null && weatherEntries.size()!=0) showWeatherDataView();
+            else
+                showLoading();
+        });
         /*
          * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to
          * do things like set the adapter of the RecyclerView and toggle the visibility.
