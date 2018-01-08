@@ -17,6 +17,7 @@ package com.example.android.sunshine.ui.list;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -233,8 +234,36 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
      * @param newForecast the new list of forecasts to use as ForecastAdapter's data source
      */
     void swapForecast(final List<WeatherEntry> newForecast) {
-        mForecast = newForecast;
-        notifyDataSetChanged();
+        if(mForecast == null){
+            mForecast = newForecast;
+            notifyDataSetChanged();
+        }
+
+        else {
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return mForecast.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newForecast.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int i, int i1) {
+                    return (mForecast.get(i).getId()==newForecast.get(i1).getId());
+                }
+
+                @Override
+                public boolean areContentsTheSame(int i, int i1) {
+                    return ((newForecast.get(i1)).getId() == (mForecast.get(i)).getId()) && newForecast.get(i1).getDate().equals(mForecast.get(i).getDate());
+                }
+            });
+            mForecast = newForecast;
+            diffResult.dispatchUpdatesTo(this);
+        }
     }
 
     /**
