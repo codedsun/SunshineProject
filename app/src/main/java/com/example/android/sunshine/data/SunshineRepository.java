@@ -24,6 +24,8 @@ import com.example.android.sunshine.data.database.WeatherDao;
 import com.example.android.sunshine.data.database.WeatherEntry;
 import com.example.android.sunshine.data.network.WeatherNetworkDataSource;
 
+import java.util.Date;
+
 /**
  * Handles data operations in Sunshine. Acts as a mediator between {@link WeatherNetworkDataSource}
  * and {@link WeatherDao}
@@ -111,6 +113,10 @@ public class SunshineRepository {
 
     private void startFetchWeatherService() {
         mWeatherNetworkDataSource.startFetchWeatherService();
+    }
+
+    public LiveData<WeatherEntry> getWeatherbyDate(Date date){
+        return sInstance.getWeatherbyDate(date);
     }
 
 }

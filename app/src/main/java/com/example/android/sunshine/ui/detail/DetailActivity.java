@@ -25,6 +25,7 @@ import com.example.android.sunshine.R;
 import com.example.android.sunshine.data.database.SunshineDatabase;
 import com.example.android.sunshine.data.database.WeatherEntry;
 import com.example.android.sunshine.databinding.ActivityDetailBinding;
+import com.example.android.sunshine.utilities.InjectorUtils;
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.example.android.sunshine.utilities.SunshineWeatherUtils;
 
@@ -53,11 +54,13 @@ public class DetailActivity extends LifecycleActivity {
 
         mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
         long timestamp = getIntent().getLongExtra(WEATHER_ID_EXTRA, -1);
-        Date date = new Date(timestamp);
-        detailActivityViewModel = ViewModelProviders.of(this).get(DetailActivityViewModel.class);
+        Date date = SunshineDateUtils.getNormalizedUtcDateForToday();
         detailActivityViewModel.getWeather().observe(this,weatherEntry -> {
            if(weatherEntry!=null) bindWeatherToUI(weatherEntry);
         });
+        DetailViewModelFactory detailViewModelFactory = InjectorUtils.provideDetailViewModelFactory(this.getApplicationContext(),date);
+        detailActivityViewModel = ViewModelProviders.of(this,detailViewModelFactory).get(DetailActivityViewModel.class);
+
 
 
     }
